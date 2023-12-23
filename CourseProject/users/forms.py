@@ -28,7 +28,6 @@ class RegistrationForm(forms.Form):
     subdivision = forms.CharField(label='Подразделение', max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
     job_title = forms.CharField(label='Должность', max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
     ljr = forms.DateField(label='Дата начала работы', required=False, widget=forms.DateInput(attrs={'class': 'form-control'}))
-    lje = forms.DateField(label='Дата увольнения', required=False, widget=forms.DateInput(attrs={'class': 'form-control'}))
     edr = forms.DateField(label='Дата начала обучения', required=False, widget=forms.DateInput(attrs={'class': 'form-control'}))
     ede = forms.DateField(label='Дата окончания', required=False, widget=forms.DateInput(attrs={'class': 'form-control'}))
     position = forms.CharField(label='Желаемая должность', max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))

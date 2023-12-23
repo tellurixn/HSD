@@ -57,7 +57,7 @@
       <h2>Личная информация</h2>
         <div class="form-group">
           <label for="photo">Фотография</label>
-         {% if user_data.photo != null %}
+         {% if user_data.photo != null and user_data.photo != '' %}
           <img src="{{user_data.photo.url}}" alt="Фотография сотрудника" class="img-fluid">
           {% else %}
           <img src="{% static 'main/img/worker.png' %}" alt="Фотография сотрудника" class="img-fluid">

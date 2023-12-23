@@ -108,8 +108,8 @@ class EmploymentContract(models.Model):
     salary = models.BigIntegerField(db_column='Salary')  # Field name made lowercase.
     id_worker = models.ForeignKey('Worker', models.DO_NOTHING, db_column='ID_Worker')  # Field name made lowercase.
     id_place_of_work = models.ForeignKey('PlaceOfWork', models.DO_NOTHING, db_column='ID_Place_Of_Work')  # Field name made lowercase.
-    id_job_title = models.IntegerField(db_column='ID_Job_Title')  # Field name made lowercase.
-    id_subdivision = models.IntegerField(db_column='ID_Subdivision')  # Field name made lowercase.
+    id_job_title = models.ForeignKey('JobTitle',models.DO_NOTHING, db_column='ID_Job_Title')  # Field name made lowercase.
+    id_subdivision = models.ForeignKey('StructuralSubdivision', models.DO_NOTHING, db_column='ID_Subdivision')  # Field name made lowercase.
 
     def __int__(self):
         return self.id_contract
@@ -148,6 +148,7 @@ class JobTitle(models.Model):
     def __int__(self):
         return self.id_job_title
 
+
     class Meta:
        
         db_table = 'Job_Title'
@@ -157,7 +158,7 @@ class PlaceOfWork(models.Model):
     id_place_of_work = models.AutoField(db_column='ID_Place_Of_Work', primary_key=True)  # Field name made lowercase. The composite primary key (ID_Place_Of_Work, ID_Job_Title, ID_Subdivision) found, that is not supported. The first column is selected.
     reseipt_date = models.DateField(db_column='Reseipt_Date')  # Field name made lowercase.
     expiration_date = models.DateField(db_column='Expiration_Date', blank=True, null=True)  # Field name made lowercase.
-    id_job_title = models.ForeignKey(JobTitle, models.DO_NOTHING, db_column='ID_Job_Title')  # Field name made lowercase.
+    id_job_title = models.ForeignKey('JobTitle', models.DO_NOTHING, db_column='ID_Job_Title')  # Field name made lowercase.
     id_subdivision = models.ForeignKey('StructuralSubdivision', models.DO_NOTHING, db_column='ID_Subdivision')  # Field name made lowercase.
     name = models.CharField(db_column='Name', max_length=100)  # Field name made lowercase.
 
@@ -295,6 +296,10 @@ class Worker(models.Model):
 
     def __int__(self):
         return self.id_worker
+
+    def __str__(self):
+        return f'{self.surname} {self.name} {self.patronymic}'
+
 
     class Meta:
         db_table = 'Worker'

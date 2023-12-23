@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .forms import WorkerForm
+from .forms import WorkerForm, OrderForm
 from .models import *
 from datetime import date, timedelta
 from django.utils import timezone
@@ -68,12 +68,15 @@ def workers(request):
     workers = Worker.objects.all()
 
     for worker in workers:
+        try:
+            contract = EmploymentContract.objects.get(id_worker=worker.id_worker)
+        except EmploymentContract.DoesNotExist:
+            continue
         status = ''
-        contract = EmploymentContract.objects.get(id_worker=worker.id_worker)
 
-        place = contract.id_place_of_work
+        place = PlaceOfWork.objects.get(id_place_of_work=contract.id_place_of_work)
 
-        job_title = place.id_job_title
+        job_title = JobTitle.objects.get(id_job_title=place.id_job_title)
 
         fio = worker.surname + ' ' + worker.name + ' ' + worker.patronymic
         vac = Vacation.objects.all().filter(expiration_date__gte=date.today(), id_worker=worker.id_worker)
@@ -100,8 +103,24 @@ def workers(request):
 
 @login_required
 def orders(request):
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data)
+            if form.cleaned_data.get('orderType') == 1: #Отпуск
+                pass
+            elif form.cleaned_data.get('orderType') == 2: #Прием
+                pass
+            elif form.cleaned_data.get('orderType') == 3: #Увольнение
+                pass
 
-    return render(request, 'main/orders.html')
+
+    elif request.method == 'GET':
+        form = OrderForm()
+        data = {
+            'form': form,
+        }
+        return render(request, 'main/orders.html', data)
 
 @login_required
 def concrete_worker(request, id):
@@ -164,14 +183,25 @@ def profile(request, id):
     user = request.user
 
     user_data = Worker.objects.get(id_worker=user.id_worker)
-    contract = EmploymentContract.objects.get(id_worker=user.id_worker)
-    job = JobTitle.objects.get(id_job_title=contract.id_job_title)
-    subdivision = StructuralSubdivision.objects.get(id_subdivision=contract.id_subdivision)
-    data = {
-        'user_data': user_data,
-        'job': job.name,
-        'subdivision': subdivision.name,
-    }
+    try:
+        contract = EmploymentContract.objects.get(id_worker=user.id_worker)
+    except EmploymentContract.DoesNotExist:
+        contact = None
+
+    if contact is not None:
+        job = JobTitle.objects.get(id_job_title=contract.id_job_title)
+        subdivision = StructuralSubdivision.objects.get(id_subdivision=contract.id_subdivision)
+
+        data = {
+            'user_data': user_data,
+            'job': job.name,
+            'subdivision': subdivision.name,
+        }
+    else:
+        data = {
+            'user_data': user_data,
+        }
+
 
     return render(request,'main/worker_page.html', data)
 
