@@ -1,0 +1,191 @@
+ {% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'main/css/orders.css' %}">
+  <title>Приказы</title>
+
+</head>
+
+<body>
+   <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Главная</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    {% if request.user.is_authenticated %}
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/candidates/">Кандидаты</a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link" href="/workers/">Сотрудники</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/orders/">Приказы</a>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+      <h5>{{request.user.username}}</h5>
+      <form method="post" action="{% url 'users:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary ml-2">Выйти</button>
+      </form>
+
+    {% else %}
+      <a href="/users/login/"><button class="btn btn-outline-primary ml-2">Войти</button></a>
+      <a href="{% url 'users:register' %}"><button class="btn btn-outline-primary ml-2">Регистрация</button></a>
+    {% endif %}
+
+  </nav>
+
+
+  <div class="container">
+    <div class="container">
+
+       {% if request.user.id_role.name == 'Администратор' %}
+      <div class="container" id="order_form">
+        <h2>Добавление нового приказа</h2>
+        <form>
+          <div class="form-group">
+            <label for="userId">Выбор ID пользователя:</label>
+            <input type="text" class="form-control" id="userId" placeholder="Введите ID пользователя">
+          </div>
+          <div class="form-group">
+            <label for="orderNumber">Номер приказа:</label>
+            <input type="text" class="form-control" id="orderNumber" placeholder="Введите номер приказа">
+          </div>
+          <div class="form-group">
+            <label for="orderType">Выбор типа приказа:</label>
+            <select class="form-control" id="orderType">
+              <option value="" disabled selected style="display:none;">Тип приказа</option>
+              <option value="1">Отпуск</option>
+              <option value="2">Прием на работу</option>
+              <option value="3">Увольнение</option>
+            </select>
+          </div>
+
+          <div id="vacationFields" style="display: none;">
+            <div class="form-group">
+              <label for="vacationType">Выбор вида отпуска:</label>
+              <select class="form-control" id="vacationType">
+                <option value="" disabled selected style="display:none;">Вид отпуска</option>
+                <option value="1">Ежегодный обычный</option>
+                <option value="2">Ежегодный дополнительный</option>
+                <option value="3">Без сохранения ЗП</option>
+                <option value="4">Учебный</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="employee">Сотрудник:</label>
+              <input type="text" class="form-control" id="employee" placeholder="Введите имя сотрудника">
+            </div>
+            <div class="form-group">
+              <label for="startDate">Дата начала отпуска:</label>
+              <input type="date" class="form-control" id="startDate">
+            </div>
+            <div class="form-group">
+              <label for="endDate">Дата окончания отпуска:</label>
+              <input type="date" class="form-control" id="endDate">
+            </div>
+          </div>
+          <div id="hiringFields" style="display: none;">
+            <div class="form-group">
+              <label for="contractNumber">Номер трудового договора:</label>
+              <input type="text" class="form-control" id="contractNumber" placeholder="Введите номер трудового договора">
+            </div>
+            <div class="form-group">
+              <label for="candidate">Кандидат:</label>
+              <input type="text" class="form-control" id="candidate" placeholder="Введите имя кандидата">
+            </div>
+          </div>
+          <div id="dismissalFields" style="display: none;">
+            <div class="form-group">
+              <label for="dismissalContractNumber">Номер трудового договора:</label>
+              <input type="text" class="form-control" id="dismissalContractNumber" placeholder="Введите номер трудового договора">
+            </div>
+            <div class="form-group">
+              <label for="dismissalEmployee">Сотрудник:</label>
+              <input type="text" class="form-control" id="dismissalEmployee" placeholder="Введите имя сотрудника">
+            </div>
+            <div class="form-group">
+              <label for="reason">Причина увольнения:</label>
+              <textarea class="form-control" id="reason" placeholder="Введите причину увольнения"></textarea>
+            </div>
+          </div>
+
+
+
+          <button type="submit" class="btn btn-primary">Добавить приказ</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+
+    <h1>Недавние приказы</h1>
+    <ul class="list-group">
+      <a href="/templates/concrete_order.html"><li class="list-group-item">Приказ №1</li></a>
+      <a href="#"><li class="list-group-item">Приказ №2</li></a>
+      <a href="#"><li class="list-group-item">Приказ №3</li></a>
+    </ul>
+    <h1>Все приказы</h1>
+    <ul class="list-group">
+      
+
+      <h2>Форма сортировки</h2>
+      <div class="form-group">
+        <label for="sort">Сортировать по:</label>
+        <select class="form-control" id="sort">
+          <option value="" disabled selected style="display:none;">Выберите критерий сортировки</option>
+          <option value="employee">По сотруднику</option>
+          <option value="date">По дате выхода приказа</option>
+          <option value="type">По типу приказа</option>
+        </select>
+      </div>
+
+      <!-- Этот список будет получен с сервера -->
+      <a href="#"><li class="list-group-item">Приказ №1</li></a>
+      <a href="#"><li class="list-group-item">Приказ №2</li></a>
+      <a href="#"><li class="list-group-item">Приказ №3</li></a>
+      <a href="#"><li class="list-group-item">Приказ №4</li></a>
+      <a href="#"><li class="list-group-item">Приказ №5</li></a>
+      <a href="#"><li class="list-group-item">Приказ №6</li></a>
+    </ul>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $('#orderType').change(function(){
+      if ($(this).val() === "1") {
+        $('#vacationFields').show();
+        $('#hiringFields').hide();
+        $('#dismissalFields').hide();
+      } else if ($(this).val() === "2") {
+        $('#vacationFields').hide();
+        $('#hiringFields').show();
+        $('#dismissalFields').hide();
+      } else if ($(this).val() === "3") {
+        $('#vacationFields').hide();
+        $('#hiringFields').hide();
+        $('#dismissalFields').show();
+      }
+    });
+  </script>
+
+</body>
+
+</html>

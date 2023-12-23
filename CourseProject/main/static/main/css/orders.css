@@ -1,0 +1,95 @@
+/* Стили для шапки страницы */
+.header {
+    background-color: #0A1F32;
+    padding: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.header button {
+    margin-right: 10px;
+    background-color: #555;
+    color: #E5E5E5;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .collapse{
+    justify-content: start;
+}
+
+  .header button:hover {
+    background-color: #777;
+  }
+  
+  /* Стили для остального содержимого страницы */
+  body {
+    background-color: #0A1F32;
+    color: #E5E5E5;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+.content {
+    margin-top: 3%;
+}
+
+.container {
+  background-color: #E5E5E5;
+  padding: 20px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+#order_form{
+  margin-top: 50px;
+  padding: 20px;
+  border: 1px solid #E5E5E5;
+  border-radius: 10px;
+}
+
+h1,h3,h4 {
+  text-align: center;
+  color:#080C25;
+}
+
+h2 {
+    color: #080C25;
+}
+
+.col-md-3 {
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #E5E5E5;
+  border-radius: 5px;
+}
+
+p {
+  margin: 0;
+  color: #080C25;
+}
+
+span {
+  font-weight: bold;
+}
+
+.list-group-item {
+    color: #555;
+}
+
+label {
+  color: #080C25;
+  font-family: Arial, sans-serif;
+}
+
+.employee-info {
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }

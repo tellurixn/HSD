@@ -1,0 +1,115 @@
+ {% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/css/concrete_worker.css' %}">
+    <title>Редактирование</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Главная</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    {% if request.user.is_authenticated %}
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/candidates/">Кандидаты</a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link" href="/workers/">Сотрудники</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/orders/">Приказы</a>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+      <h5>{{request.user.username}}</h5>
+      <form method="post" action="{% url 'users:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary ml-2">Выйти</button>
+      </form>
+
+    {% else %}
+      <a href="/users/login/"><button class="btn btn-outline-primary ml-2">Войти</button></a>
+      <a href="{% url 'users:register' %}"><button class="btn btn-outline-primary ml-2">Регистрация</button></a>
+    {% endif %}
+
+  </nav>
+
+    <div class="container mt-5">
+        {% if error != '' %}
+            <h2>{{error}}</h2>
+        {% else %}
+         <h2>Редактировать информацию о сотруднике</h2>
+        {% endif %}
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="surname">Фамилия:</label>
+        {{form.surname}}
+      </div>
+      <div class="form-group">
+        <label for="name">Имя:</label>
+        {{form.name}}
+      </div>
+      <div class="form-group">
+        <label for="patronymic">Отчество:</label>
+        {{form.patronymic}}
+      </div>
+      <div class="form-group">
+        <label for="gender">Пол:</label>
+        {{form.gender}}
+      </div>
+      <div class="form-group">
+        <label for="birthday">Дата рождения:</label>
+        {{form.birthday}}
+      </div>
+      <div class="form-group">
+        <label for="work_experience">Опыт:</label>
+        {{form.work_experience}}
+      </div>
+      <div class="form-group">
+        <label >Адрес:</label>
+        {{form.adress}}
+      </div>
+      <div class="form-group">
+        <label for="phone_number">Номер телефона:</label>
+        {{form.phone_number}}
+      </div>
+
+      <div class="form-group">
+        <label> Фото:</label>
+        {{form.photo}}
+      </div>
+
+
+
+
+      <button type="submit" class="btn btn-primary">Сохранить</button>
+    </form>
+    </div>
+
+
+
+
+
+
+
+
+
+</body>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</html>

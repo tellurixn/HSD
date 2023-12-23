@@ -1,0 +1,154 @@
+ {% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Страница администратора</title>
+    <!-- Подключение Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'main/css/main.css' %}">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Главная</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    {% if request.user.is_authenticated %}
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/candidates/">Кандидаты</a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link" href="/workers/">Сотрудники</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/orders/">Приказы</a>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+      <div>
+        {% if request.user.id_role.name == 'Сотрудник' %}
+        <a href="/profile/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5> </a>
+        {% elif  request.user.id_role.name == 'Кандидат' %}
+        <a href="/candidate_page/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5></a>
+        {% else %}
+           <h5>{{request.user.username}}</h5></a>
+        {% endif %}
+
+        </a>
+      </div>
+
+      <form method="post" action="{% url 'users:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary ml-2">Выйти</button>
+      </form>
+
+    {% else %}
+      <a href="/users/login/"><button class="btn btn-outline-primary ml-2">Войти</button></a>
+      <a href="{% url 'users:register' %}"><button class="btn btn-outline-primary ml-2">Регистрация</button></a>
+    {% endif %}
+
+  </nav>
+
+    <div class="content">
+        <div class="container">
+            <h3>Статистика сотрудников</h3>
+            <div class="row">
+              <div class="col-md-3">
+                <p>Сотрудников: {{worker_counter}}<span id="employeesCount"></span></p>
+              </div>
+              <div class="col-md-3">
+                <p>Отпуск: {{vac_counter}}<span id="vacationCount"></span></p>
+              </div>
+              <div class="col-md-3">
+                <p>Больничный: {{sick_counter}}<span id="sickCount"></span></p>
+              </div>
+              <div class="col-md-3">
+                <p>Кандидатов: {{candidate_counter}}<span id="candidatesCount"></span></p>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="container">
+            <h3>Статистика за квартал</h3>
+            <div class="row">
+              <div class="col-md-4">
+                <h4>Новые сотрудники: {{new_workers}}</h4>
+
+              </div>
+              <div class="col-md-4">
+                <h4>Уволено: {{dismissals}}</h4>
+
+              </div>
+              <div class="col-md-4">
+                <h4>Новые кандидаты: {{new_candidates}}</h4>
+
+              </div>
+
+              <canvas id="quarterlyStatisticsChart" height="150"></canvas>
+            </div>
+          </div>
+
+
+    </div>
+    
+
+<!-- Подключение Bootstrap JS (необходимо для работы некоторых компонентов) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script>
+         // Получение данных из переменных {{new_workers}}, {{dismissals}}, {{new_candidates}}
+    var newWorkersData = {{new_workers}};
+    var dismissalsData = {{dismissals}};
+    var newCandidatesData = {{new_candidates}};
+
+    // Создание графика
+    var ctx = document.getElementById('quarterlyStatisticsChart').getContext('2d');
+
+    var quarterlyStatisticsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Новые сотрудники', 'Уволено', 'Новые кандидаты'],
+            datasets: [{
+                label: 'Статистика за квартал',
+                showLine: false,
+                data: [newWorkersData, dismissalsData, newCandidatesData],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1,
+
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+
+             legend: {
+                display: false,
+             }
+        }
+    });
+    </script>
+</body>
+</html>

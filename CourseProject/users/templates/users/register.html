@@ -1,0 +1,147 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/css/main.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Регистрация нового пользователя</h2>
+        <form id="registrationForm" method="post">
+                {% csrf_token %}
+            <div class="form-group">
+                <label>Имя пользователя:</label>
+                {{form.username}}
+            </div>
+            <div class="form-group">
+                <label>Пароль:</label>
+                {{form.password}}
+            </div>
+
+            <div class="form-group">
+                <label>Роль:</label>
+                {{form.role}}
+                <!--<select class="form-control" id="role" onchange="showFields()">
+                    <option value="" disabled selected style="display:none;">Выберите роль</option>
+                    <option value="candidate">Кандидат</option>
+                    <option value="employee">Сотрудник</option>
+                    <option value="departmentHead">Начальник подразделения</option>
+                </select>-->
+            </div>
+            <div class="form-group">
+                <label for="surname">Фамилия:</label>
+                {{form.surname}}
+            </div>
+            <div class="form-group">
+                <label for="name">Имя:</label>
+                {{form.name}}
+            </div>
+            <div class="form-group">
+                <label for="patronymic">Отчество:</label>
+                {{form.patronymic}}
+            </div>
+            <div class="form-group">
+                <label for="dob">Дата рождения:</label>
+                {{form.dob}}
+            </div>
+            <div class="form-group">
+                <label for="gender">Пол:</label>
+                {{form.gender}}
+                <!--<select class="form-control" id="gender">
+                    <option value="male">Мужской</option>
+                    <option value="female">Женский</option>
+                </select>-->
+            </div>
+            <div class="form-group">
+                <label for="experience">Опыт работы (в годах):</label>
+                {{form.experience}}
+            </div>
+            <div class="form-group">
+                <label for="address">Адрес:</label>
+                {{form.address}}
+            </div>
+            <div class="form-group">
+                <label for="phone">Номер телефона:</label>
+                {{form.phone}}
+            </div>
+            <div class="form-group">
+                <label for="photo">Фотография:</label>
+                {{form.photo}}
+            </div>
+            <div id="employeeFields" style="display: none;">
+                <label for="pow_name">Место работы:</label>
+                {{form.pow_name}}
+                <label for="subdivision">Подразделение:</label>
+                {{form.subdivision}}
+                <label for="job_title">Должность:</label>
+                {{form.job_title}}
+                <label for="ljr">Дата начала работы:</label>
+                {{form.ljr}}
+                <label for="lje">Дата увольнения:</label>
+                {{form.lje}}
+
+            </div>
+            <div id="candidateFields" style="display: none;">
+                <div class="form-group">
+                <label for="position">Желаемая должность:</label>
+                {{form.position}}
+                </div>
+
+                <!-- Поле для Кандидата (желаемая должность) -->
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" id="addEduData">Добавить данные об образовании</button>
+                </div>
+                <div id="eduFields" style="display: none;">
+                    <div class="form-group">
+                    <label for="pow_name">Название учебного заведения:</label>
+                    {{form.edu_name}}
+                    </div>
+                    <div class="form-group">
+                    <label for="edr">Дата начала обучения:</label>
+                        {{form.edr}}
+                    </div>
+                    <div class="form-group">
+                    <label for="ede">Дата окончания обучения:</label>
+                        {{form.ede}}
+                    </div>
+                </div>
+                <!-- Кнопка для добавления данных о прошлом месте работы -->
+                <!-- Блок с полями для прошлого места работы (появится по нажатию кнопки) -->
+
+            </div>
+            <br><button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById("addEduData").addEventListener("click", function() {
+            document.getElementById("eduFields").style.display = "block";
+        });
+        document.getElementById("id_role").addEventListener("click", function() {
+            var role = document.getElementById("id_role").value;
+            if (role === "employee" || role === "departmentHead") {
+                document.getElementById("employeeFields").style.display = "block";
+                document.getElementById("candidateFields").style.display = "none";
+                document.getElementById("eduFields").style.display = "none";
+                // Здесь можно добавить запрос к серверу для получения списка подразделений и должностей
+            } else if (role === "candidate") {
+                document.getElementById("employeeFields").style.display = "none";
+                document.getElementById("candidateFields").style.display = "block";
+                // Здесь можно добавить запрос к серверу для получения списка вариантов должностей
+            } else {
+                document.getElementById("employeeFields").style.display = "none";
+                document.getElementById("candidateFields").style.display = "none";
+                document.getElementById("eduFields").style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

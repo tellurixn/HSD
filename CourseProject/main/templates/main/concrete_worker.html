@@ -1,0 +1,106 @@
+ {% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/css/concrete_worker.css' %}">
+    <title>Информация о сотруднике</title>
+</head>
+<body>
+     <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Главная</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    {% if request.user.is_authenticated %}
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/candidates/">Кандидаты</a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link" href="/workers/">Сотрудники</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/orders/">Приказы</a>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+      <h5>{{request.user.username}}</h5>
+      <form method="post" action="{% url 'users:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary ml-2">Выйти</button>
+      </form>
+
+    {% else %}
+      <a href="/users/login/"><button class="btn btn-outline-primary ml-2">Войти</button></a>
+      <a href="{% url 'users:register' %}"><button class="btn btn-outline-primary ml-2">Регистрация</button></a>
+    {% endif %}
+
+  </nav>
+
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-4" id="photo">
+                    {% if worker.photo != null %}
+                    <img src="{{worker.photo.url}}" alt="Фотография сотрудника" class="img-fluid">
+                    {% else %}
+                    <img src="{% static 'main/img/worker.png' %}" alt="Фотография сотрудника" class="img-fluid">
+                    {% endif %}
+                </div>
+                <div class="col-8">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8 mx-auto mt-5" id="info">
+                        <h1>Информация о сотруднике</h1>
+                        <div class="card">
+                          <div class="card-body">
+                            <h4 class="card-title">{{ worker.surname }} {{ worker.name }} {{ worker.patronymic }} </h4>
+                            <p class="card-text">Подразделение: {{ subdivision }}</p>
+                            <p class="card-text">Должность: {{ job }}</p>
+                            <p class="card-text">Пол: {{ worker.gender }}</p>
+                            <p class="card-text">Дата рождения: {{ worker.birthday }}</p>
+                            <p class="card-text">Опыт в годах: {{ worker.work_experience }}</p>
+                            <p class="card-text">Адрес: {{ worker.adress }}</p>
+                            <p class="card-text">Номер телефона: {{ worker.phone_number }}</p>
+
+                            <!-- Добавьте разметку для отображения фото, если используется -->
+                            <!-- <img src="data:image/jpeg;base64,{{ worker.photo }}" alt="Photo"> -->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+             <p>Список приказов на сотрудника</h2>
+            <ul class="list-group">
+                <a href="#"><li class="list-group-item">Приказ №1: О назначении на должность</li></a>
+                <a href="#"><li class="list-group-item">Приказ №2: Об увольнении по собственному желанию</li></a>
+                <a href="#"><li class="list-group-item">Приказ №3: О переводе на другую должность</li></a>
+            </ul>
+        </div>
+
+
+                
+             
+
+           
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

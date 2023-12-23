@@ -1,0 +1,123 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+     <link rel="stylesheet" href="{% static 'main/css/concrete_worker.css' %}">
+  <title></title>
+</head>
+<body>
+ <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Главная</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    {% if request.user.is_authenticated %}
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/candidates/">Кандидаты</a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link" href="/workers/">Сотрудники</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/orders/">Приказы</a>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+      <div>
+        <a href="/profile/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5>
+        </a>
+      </div>
+
+      <form method="post" action="{% url 'users:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary ml-2">Выйти</button>
+      </form>
+
+    {% else %}
+      <a href="/users/login/"><button class="btn btn-outline-primary ml-2">Войти</button></a>
+      <a href="{% url 'users:register' %}"><button class="btn btn-outline-primary ml-2">Регистрация</button></a>
+    {% endif %}
+
+  </nav>
+
+  <div class="container">
+    <h1>Здравствуйте, {{user_data.name}} {{user_data.patronymic}} !</h1><br>
+    <div class="row">
+      <div class="col-md-6">
+      <h2>Личная информация</h2>
+        <div class="form-group">
+          <label for="photo">Фотография</label>
+         {% if user_data.photo != null and user_data.photo != '' %}
+          <img src="{{user_data.photo.url}}" alt="Фотография " class="img-fluid">
+          {% else %}
+          <img src="{% static 'main/img/worker.png' %}" alt="Фотография" class="img-fluid">
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label for="fullName">ФИО</label>
+          <p> {{user_data.surname}} {{user_data.name}}  {{user_data.patronymic}}</p>
+        </div>
+        <div class="form-group">
+          <label for="dob">Дата рождения</label>
+          <p> {{user_data.birthday}}</p>
+        </div>
+        <div class="form-group">
+          <label for="gender">Пол</label>
+          <p> {{user_data.gender}}</p>
+        </div>
+        <div class="form-group">
+          <label for="address">Адрес</label>
+          <p> {{user_data.adress}}</p>
+        </div>
+        <div class="form-group">
+          <label for="experience">Опыт работы</label>
+          <p> {{user_data.work_experience}}</p>
+        </div>
+        <div class="form-group">
+          <label for="phone">Номер телефона</label>
+          <p> {{user_data.phone_number}}</p>
+        </div>
+        <a href="/edit/{{user_data.id_worker}}"><button class="btn btn-primary">Редактировать</button></a>
+      </div>
+      <div class="col-md-6">
+        <h2>Рабочая информация</h2>
+        <div class="form-group">
+          <label for="department">Желаемая должность</label>
+          <p>{{user_data.position}}</p>
+        </div>
+         <h2>Данные об образовании</h2>
+          {% if educations|length > 0 %}
+          {% for el in educations %}
+            <div class="form-group">
+              <label for="department">Название заведения</label>
+              <p>{{el.educational_institute}}</p>
+            </div>
+            <div class="form-group">
+              <label >Дата начала</label>
+              <p>{{el.receipt_date}}</p>
+            </div>
+             <div class="form-group">
+              <label >Дата окончания</label>
+              <p>{{el.expiration_date}}</p>
+            </div>
+          {% endfor %}
+          {% else %}
+            <p>Данные об образовании отсутсвуют</p>
+        {% endif %}
+      </div>
+    </div>
+
+
+  </div>
+</body>
+</html>
