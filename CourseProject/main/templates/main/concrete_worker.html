@@ -33,7 +33,20 @@
     {% endif %}
 
     {% if request.user.is_authenticated %}
-      <h5>{{request.user.username}}</h5>
+      <div>
+        {% if request.user.id_role.name == 'Сотрудник' %}
+        <a href="/profile/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5> </a>
+        {% elif  request.user.id_role.name == 'Кандидат' %}
+        <a href="/candidate_page/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5></a>
+        {% else %}
+           <h5>{{request.user.username}}</h5></a>
+        {% endif %}
+
+        </a>
+      </div>
+
       <form method="post" action="{% url 'users:logout' %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-primary ml-2">Выйти</button>
@@ -83,9 +96,19 @@
 
              <p>Список приказов на сотрудника</h2>
             <ul class="list-group">
-                <a href="#"><li class="list-group-item">Приказ №1: О назначении на должность</li></a>
-                <a href="#"><li class="list-group-item">Приказ №2: Об увольнении по собственному желанию</li></a>
-                <a href="#"><li class="list-group-item">Приказ №3: О переводе на другую должность</li></a>
+                {% if vacations|length == 0 and recruitments|length == 0 and dismissals|length == 0 %}
+            <li class="list-group-item">Список пуст</li>
+            {% else %}
+                 {% for order in vacations %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ о предоставлении отпуска от {{order.receipt_date}}</a></li>
+                {% endfor %}
+                {% for order in recruitments %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ о приеме на работу от {{order.recruitment_date}}</a></li>
+                {% endfor %}
+                {% for order in dismissals %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ об увольнении от {{order.dismissal_date}}</a></li>
+                {% endfor %}
+            {% endif %}
             </ul>
         </div>
 

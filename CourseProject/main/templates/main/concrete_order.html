@@ -35,7 +35,20 @@
     {% endif %}
 
     {% if request.user.is_authenticated %}
-      <h5>{{request.user.username}}</h5>
+      <div>
+        {% if request.user.id_role.name == 'Сотрудник' %}
+        <a href="/profile/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5> </a>
+        {% elif  request.user.id_role.name == 'Кандидат' %}
+        <a href="/candidate_page/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5></a>
+        {% else %}
+           <h5>{{request.user.username}}</h5></a>
+        {% endif %}
+
+        </a>
+      </div>
+
       <form method="post" action="{% url 'users:logout' %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-primary ml-2">Выйти</button>

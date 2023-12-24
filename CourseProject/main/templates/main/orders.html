@@ -27,15 +27,28 @@
         <li class="nav-item ">
           <a class="nav-link" href="/workers/">Сотрудники</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item active">
           <a class="nav-link" href="/orders/">Приказы</a>
         </li>
       </ul>
     </div>
     {% endif %}
 
-    {% if request.user.is_authenticated %}
-      <h5>{{request.user.username}}</h5>
+     {% if request.user.is_authenticated %}
+      <div>
+        {% if request.user.id_role.name == 'Сотрудник' %}
+        <a href="/profile/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5> </a>
+        {% elif  request.user.id_role.name == 'Кандидат' %}
+        <a href="/candidate_page/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5></a>
+        {% else %}
+           <h5>{{request.user.username}}</h5></a>
+        {% endif %}
+
+        </a>
+      </div>
+
       <form method="post" action="{% url 'users:logout' %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-outline-primary ml-2">Выйти</button>
@@ -191,32 +204,37 @@
 
     <h1>Недавние приказы</h1>
     <ul class="list-group">
-      <a href="/templates/concrete_order.html"><li class="list-group-item">Приказ №1</li></a>
-      <a href="#"><li class="list-group-item">Приказ №2</li></a>
-      <a href="#"><li class="list-group-item">Приказ №3</li></a>
+      {% if vacations_last|length == 0 and recruitments_last|length == 0 and dismissals_last|length == 0 %}
+            <li class="list-group-item">Список пуст</li>
+            {% else %}
+                 {% for order in vacations_last %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ о предоставлении отпуска от {{order.receipt_date}}</a></li>
+                {% endfor %}
+                {% for order in recruitments_last %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ о приеме на работу от {{order.recruitment_date}}</a></li>
+                {% endfor %}
+                {% for order in dismissals_last %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ об увольнении от {{order.dismissal_date}}</a></li>
+                {% endfor %}
+            {% endif %}
     </ul>
+
     <h1>Все приказы</h1>
     <ul class="list-group">
-      
 
-      <h2>Форма сортировки</h2>
-      <div class="form-group">
-        <label for="sort">Сортировать по:</label>
-        <select class="form-control" id="sort">
-          <option value="" disabled selected style="display:none;">Выберите критерий сортировки</option>
-          <option value="employee">По сотруднику</option>
-          <option value="date">По дате выхода приказа</option>
-          <option value="type">По типу приказа</option>
-        </select>
-      </div>
-
-      <!-- Этот список будет получен с сервера -->
-      <a href="#"><li class="list-group-item">Приказ №1</li></a>
-      <a href="#"><li class="list-group-item">Приказ №2</li></a>
-      <a href="#"><li class="list-group-item">Приказ №3</li></a>
-      <a href="#"><li class="list-group-item">Приказ №4</li></a>
-      <a href="#"><li class="list-group-item">Приказ №5</li></a>
-      <a href="#"><li class="list-group-item">Приказ №6</li></a>
+        {% if all_vacations|length == 0 and all_recruitments|length == 0 and all_dismissals|length == 0 %}
+            <li class="list-group-item">Список пуст</li>
+            {% else %}
+                 {% for order in all_vacations %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ о предоставлении отпуска от {{order.receipt_date}}</a></li>
+                {% endfor %}
+                {% for order in all_recruitments %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ о приеме на работу от {{order.recruitment_date}}</a></li>
+                {% endfor %}
+                {% for order in all_dismissals %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ об увольнении от {{order.dismissal_date}}</a></li>
+                {% endfor %}
+            {% endif %}
     </ul>
   </div>
 

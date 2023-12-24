@@ -320,9 +320,31 @@ def orders(request):
     elif request.method == 'GET':
         form = OrderForm()
         contractForm = ContractForm()
+
+        all_recruitments = Recruitment.objects.all()
+        all_vacations = Vacation.objects.all()
+        all_dismissals = Dismissal.objects.all()
+
+        # Определите начало и конец последнего месяца
+        end_date = timezone.now() 
+        start_date = end_date - timedelta(days=30)
+        print(end_date)
+        print(start_date)
+
+        # Получите все записи за последний месяц
+        dismissals_last_month = Dismissal.objects.filter(dismissal_date__range=[start_date, end_date])
+        vacations_last_month = Vacation.objects.filter(receipt_date__range=[start_date, end_date])
+        recruitments_last_month = Recruitment.objects.filter(recruitment_date__range=[start_date, end_date])
+
         data = {
             'form': form,
             'contractForm': contractForm,
+            'all_recruitments': all_recruitments,
+            'all_vacations': all_vacations,
+            'all_dismissals': all_dismissals,
+            'dismissals_last': dismissals_last_month,
+            'recruitments_last': recruitments_last_month,
+            'vacations_last': vacations_last_month,
         }
         return render(request, 'main/orders.html', data)
 
@@ -333,10 +355,28 @@ def concrete_worker(request, id):
     job = JobTitle.objects.get(id_job_title=contract.id_job_title).name
     subdivision = StructuralSubdivision.objects.get(id_subdivision=contract.id_subdivision).name
 
+    try:
+        worker_vacations = Vacation.objects.get(id_worker=worker)
+    except Vacation.DoesNotExist:
+        worker_vacations = None
+
+    try:
+        worker_recruitments = Recruitment.objects.get(id_worker=worker)
+    except Recruitment.DoesNotExist:
+        worker_recruitments = None
+
+    try:
+        worker_dismissals = Dismissal.objects.get(id_worker=worker)
+    except Dismissal.DoesNotExist:
+        worker_dismissals = None
+
     data = {
         'worker': worker,
         'job': job,
         'subdivision': subdivision,
+        'vacations': worker_vacations,
+        'recruitments': worker_recruitments,
+        'dismissals': worker_dismissals,
     }
 
     return render(request, 'main/concrete_worker.html', data)
@@ -345,6 +385,7 @@ def concrete_worker(request, id):
 def concrete_candidate(request, id):
     candidate = Candidate.objects.get(id_candidate=id)
     resume = candidate.id_job_resume
+
 
     data = {
         'candidate': candidate,
@@ -387,12 +428,28 @@ def profile(request, id):
     user = request.user
 
     user_data = Worker.objects.get(id_worker=user.id_worker)
+
+    try:
+        worker_vacations = Vacation.objects.get(id_worker = user_data)
+    except Vacation.DoesNotExist:
+        worker_vacations = None
+
+    try:
+        worker_recruitments = Recruitment.objects.get(id_worker = user_data)
+    except Recruitment.DoesNotExist:
+        worker_recruitments = None
+
+    try:
+        worker_dismissals = Dismissal.objects.get(id_worker = user_data)
+    except Dismissal.DoesNotExist:
+        worker_dismissals = None
+
     try:
         contract = EmploymentContract.objects.get(id_worker=user.id_worker)
     except EmploymentContract.DoesNotExist:
-        contact = None
+        contract = None
 
-    if contact is not None:
+    if contract is not None:
         job = JobTitle.objects.get(id_job_title=contract.id_job_title)
         subdivision = StructuralSubdivision.objects.get(id_subdivision=contract.id_subdivision)
 
@@ -400,10 +457,16 @@ def profile(request, id):
             'user_data': user_data,
             'job': job.name,
             'subdivision': subdivision.name,
+            'vacations': worker_vacations,
+            'recruitments': worker_recruitments,
+            'dismissals': worker_dismissals,
         }
     else:
         data = {
             'user_data': user_data,
+            'vacations': worker_vacations,
+            'recruitments': worker_recruitments,
+            'dismissals': worker_dismissals,
         }
 
 

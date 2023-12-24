@@ -21,7 +21,7 @@
         <li class="nav-item">
           <a class="nav-link" href="/candidates/">Кандидаты</a>
         </li>
-        <li class="nav-item ">
+        <li class="nav-item">
           <a class="nav-link" href="/workers/">Сотрудники</a>
         </li>
         <li class="nav-item">
@@ -33,8 +33,16 @@
 
     {% if request.user.is_authenticated %}
       <div>
+        {% if request.user.id_role.name == 'Сотрудник' %}
         <a href="/profile/{{request.user.id_user}}">
-          <h5>{{request.user.username}}</h5>
+          <h5>{{request.user.username}}</h5> </a>
+        {% elif  request.user.id_role.name == 'Кандидат' %}
+        <a href="/candidate_page/{{request.user.id_user}}">
+          <h5>{{request.user.username}}</h5></a>
+        {% else %}
+           <h5>{{request.user.username}}</h5></a>
+        {% endif %}
+
         </a>
       </div>
 
@@ -105,10 +113,19 @@
       <div class="col-md-12">
         <h2>Приказы</h2>
         <ul>
-          <li>Приказ №1</li>
-          <li>Приказ №2</li>
-          <li>Приказ №3</li>
-          <!-- Add more orders as needed -->
+         {% if vacations|length == 0 and recruitments|length == 0 and dismissals|length == 0 %}
+            <li class="list-group-item">Список пуст</li>
+            {% else %}
+                 {% for order in vacations %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ о предоставлении отпуска от {{order.receipt_date}}</a></li>
+                {% endfor %}
+                {% for order in recruitments %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ о приеме на работу от {{order.recruitment_date}}</a></li>
+                {% endfor %}
+                {% for order in dismissals %}
+                    <li class="list-group-item"><a href="{{order.file.url}}" target="_blank">Приказ об увольнении от {{order.dismissal_date}}</a></li>
+                {% endfor %}
+            {% endif %}
         </ul>
       </div>
     </div>
