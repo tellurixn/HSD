@@ -138,6 +138,14 @@ class OrderForm(forms.Form):
     dismissalEmployee = forms.ModelChoiceField(required=False, queryset=Worker.objects.all(), label='Сотрудник',
                                       widget=forms.Select(attrs={'class': 'form-control'}))
     reason = forms.CharField(required=False, label='Причина увольнения', widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Введите причину увольнения'}))
+    salary = forms.IntegerField(required=False, label='Оклад', widget=forms.NumberInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите оклад'}))
+    pow = forms.CharField(required=False, label='Место работы', max_length=100, widget=forms.TextInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите место работы'}))
+    subdivision = forms.CharField(required=False, label='Подразделение', max_length=100, widget=forms.TextInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите подразделение'}))
+    job_title = forms.CharField(required=False, label='Должность', max_length=100, widget=forms.TextInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите должность'}))
 
 
 class ContractForm(forms.Form):

@@ -78,7 +78,7 @@ class Dismissal(models.Model):
     id_user = models.IntegerField(db_column='ID_User')  # Field name made lowercase.
     id_job_title = models.IntegerField(db_column='ID_Job_Title')  # Field name made lowercase.
     id_subdivision = models.IntegerField(db_column='ID_Subdivision')  # Field name made lowercase.
-
+    file = models.FileField(db_column='File', null=True, blank=True,upload_to='orders/')
     def __int__(self):
         return self.id_dismissal
 
@@ -148,6 +148,9 @@ class JobTitle(models.Model):
     id_job_title = models.AutoField(db_column='ID_Job_Title', primary_key=True)  # Field name made lowercase.
     name = models.CharField(db_column='Name', max_length=100)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.name
+
     def __int__(self):
         return self.id_job_title
 
@@ -184,6 +187,7 @@ class Recruitment(models.Model):
     id_user = models.IntegerField(db_column='ID_User')  # Field name made lowercase.
     id_job_title = models.IntegerField(db_column='ID_Job_Title')  # Field name made lowercase.
     id_subdivision = models.IntegerField(db_column='ID_Subdivision')  # Field name made lowercase.
+    file = models.FileField(db_column='File', null=True, blank=True, upload_to='orders/')
 
     def __int__(self):
         return self.id_recruitment
@@ -234,6 +238,8 @@ class StructuralSubdivision(models.Model):
     def __int__(self):
         return self.id_subdivision
 
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = 'Structural_Subdivision'
@@ -247,6 +253,7 @@ class Vacation(models.Model):
     id_worker = models.ForeignKey('Worker', models.DO_NOTHING, db_column='ID_Worker')  # Field name made lowercase.
     id_order = models.ForeignKey('WorkOrder', models.DO_NOTHING, db_column='ID_Order')  # Field name made lowercase.
     id_user = models.IntegerField(db_column='ID_User')  # Field name made lowercase.
+    file = models.FileField(db_column='File', null=True, blank=True, upload_to='orders/')
 
     def __int__(self):
         return self.id_vacation

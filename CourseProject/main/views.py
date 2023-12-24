@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -108,7 +110,7 @@ def orders(request):
         form = OrderForm(request.POST)
         if form.is_valid():
             print(form.cleaned_data)
-            new_order = WorkOrder(receipt_date=timezone.now(),
+            new_order = WorkOrder(receipt_date=date.today(),
                                   order_number=form.cleaned_data.get('orderNumber'),
                                   id_user=request.user)
             new_order.save()
@@ -116,11 +118,39 @@ def orders(request):
                 new_vacation = Vacation(receipt_date=form.cleaned_data.get('startDate'),
                                         expiration_date=form.cleaned_data.get('endDate'),
                                         id_vacationtype=VacationType.objects.get(
-                                        id_vacation_type=int(form.cleaned_data.get('orderType'))),
+                                            id_vacation_type=int(form.cleaned_data.get('orderType'))),
                                         id_worker=form.cleaned_data.get('employee'),
                                         id_order=new_order,
                                         id_user=request.user.id_user)
                 new_vacation.save()
+
+                pdf = FPDF()
+                pdf.add_page()
+                pdf.add_font('Hack', '', 'Hack-Regular.ttf', uni=True)
+                pdf.set_font('Hack', size=12)
+                pdf.cell(200, 50, txt='Приказ о предоставлении отпуска', ln=1, align='C')
+                vacation_string = ('Предоставить сотруднику ' + str(Worker.objects.get(id_worker=new_vacation.id_worker))
+                                   + ', работающему на должности '
+                                   + str(JobTitle.objects.get(id_job_title=EmploymentContract.objects.get(id_worker=new_vacation.id_worker).id_job_title))
+                                   + ' подразделения ' + str(StructuralSubdivision.objects.get(id_subdivision=EmploymentContract.objects.get(id_worker=new_vacation.id_worker).id_subdivision))
+                                   + ' с ' + str(new_vacation.receipt_date) + ' по ' + str(new_vacation.expiration_date) +'.')
+
+
+                pdf.multi_cell(200, 10, txt=vacation_string, align='L')
+
+
+                # Сохраняем PDF на сервере
+                pdf_path = 'orders/Vacation_' + str(
+                    new_vacation.id_vacation) + '.pdf'  # путь, куда будет сохранен PDF
+                pdf.output('./media/' + pdf_path)  # сохранение PDF файл
+
+                # Добавляем путь к PDF файлу в базу данных
+                vacation = Vacation.objects.get(
+                    id_vacation=new_vacation.id_vacation)  # Получаем объект из базы данных, куда вы хотите добавить путь к файлу
+                vacation.file = pdf_path
+                vacation.save()
+
+
             elif form.cleaned_data.get('orderType') == '2': #Прием
                 current_resume = JobResume.objects.get(id_job_resume=form.cleaned_data.get('candidate'))
 
@@ -144,8 +174,69 @@ def orders(request):
                 current_user.save()
 
                 current_candidate.delete()
-
                 current_resume.delete()
+
+                try:
+                    new_job = JobTitle.objects.get(name=form.cleaned_data.get('job_title'))
+                except JobTitle.DoesNotExist:
+                    new_job = JobTitle(name=form.cleaned_data.get('job_title'))
+                    new_job.save()
+                try:
+                    new_subdivision = StructuralSubdivision.objects.get(
+                        name=form.cleaned_data.get('subdivision'))
+                except StructuralSubdivision.DoesNotExist:
+                    new_subdivision = StructuralSubdivision(name=form.cleaned_data.get('subdivision'))
+                    new_subdivision.save()
+
+                try:
+                    new_pow = PlaceOfWork.objects.get(name=form.cleaned_data.get('pow'), id_job_title=new_job,
+                                                      id_subdivision=new_subdivision)
+                except PlaceOfWork.DoesNotExist:
+                    new_pow = PlaceOfWork(name=form.cleaned_data.get('pow'), id_job_title=new_job,
+                                          id_subdivision=new_subdivision,
+                                          reseipt_date=form.cleaned_data.get('receipt_date'))
+                    new_pow.save()
+
+                current_contract = EmploymentContract(receipt_date=date.today(),
+                                              salary=form.cleaned_data.get('salary'),
+                                              id_worker=new_worker,
+                                              id_place_of_work=new_pow,
+                                              id_subdivision=new_subdivision,
+                                              id_job_title=new_job)
+                current_contract.save()
+
+                new_recruitment = Recruitment(recruitment_date=date.today(),
+                                              id_contract=current_contract,
+                                              id_worker=new_worker,
+                                              id_job_title=new_job,
+                                              id_subdivision=new_subdivision,
+                                              id_place_of_work=new_pow,
+                                              id_order=new_order,
+                                              id_user=request.user.id_user)
+                new_recruitment.save()
+
+                pdf = FPDF()
+                pdf.add_page()
+                pdf.add_font('Hack', '', 'Hack-Regular.ttf', uni=True)
+                pdf.set_font('Hack', size=12)
+                pdf.cell(200, 50, txt='Приказ о приеме на работу', ln=1, align='C')
+                recruitment_string = ('Принять на работу ' + str(new_worker)
+                                      + ' в ' + str(new_subdivision) + ' на должность ' + str(new_job) + '.')
+
+                pdf.multi_cell(200, 10, txt=recruitment_string, align='L')
+                pdf.cell(200,15,txt='С окладом ' + str(current_contract.salary) + 'руб.' , align='L',ln=1)
+                contract_string = ('Трудовой договор от ' + str(current_contract.receipt_date) + ' №' + str(current_contract.id_contract) + '.')
+                pdf.multi_cell(200,25,txt=contract_string, align='L')
+                # Сохраняем PDF на сервере
+                pdf_path = 'orders/Recruitment_' + str(
+                    new_recruitment.id_recruitment) + '.pdf'  # путь, куда будет сохранен PDF
+                pdf.output('./media/' + pdf_path)  # сохранение PDF файл
+
+                # Добавляем путь к PDF файлу в базу данных
+                recruitment = Recruitment.objects.get(
+                    id_recruitment=new_recruitment.id_recruitment)  # Получаем объект из базы данных, куда вы хотите добавить путь к файлу
+                recruitment.file = pdf_path
+                recruitment.save()
 
 
             elif form.cleaned_data.get('orderType') == '3': #Увольнение
@@ -153,7 +244,7 @@ def orders(request):
                 current_contract = EmploymentContract.objects.get(id_worker=form.cleaned_data.get('dismissalEmployee'))
 
                 new_dismissal = Dismissal(reason=form.cleaned_data.get('reason'),
-                                          dismissal_date=timezone.now(),
+                                          dismissal_date=date.today(),
                                           id_worker=form.cleaned_data.get('dismissalEmployee'),
                                           id_contract=current_contract,
                                           id_order=new_order,
@@ -167,9 +258,28 @@ def orders(request):
                 pdf.add_page()
                 pdf.add_font('Hack', '', 'Hack-Regular.ttf', uni=True)
                 pdf.set_font('Hack', size=12)
-                pdf.cell(200,10, txt='Приказ на увольнение', ln=1, align='C')
+                pdf.cell(200,50, txt='Приказ об увольнении', ln=1, align='C')
+                dismissal_string = ('Уволить ' + str(date.today()) + ' с должности ' + JobTitle.objects.get(id_job_title=new_dismissal.id_job_title).name + ' подразделения '
+                                    + StructuralSubdivision.objects.get(id_subdivision=new_dismissal.id_subdivision).name + ' cотрудника '
+                                    + str(Worker.objects.get(id_worker=new_dismissal.id_worker))
+                                    + ' c согласия работника. Расторгнуть трудовой договор от ' + str(current_contract.receipt_date) + ' №'
+                                    + str(current_contract.id_contract) + ', заключенный с сотрудником.')
 
-                pdf.output('./media/orders/Dismissal_' + str(new_dismissal.id_dismissal) + '.pdf')
+                pdf.multi_cell(200,10, txt=dismissal_string, align='L')
+
+                reason_string = ('Основание: ' + new_dismissal.reason + '.')
+                pdf.multi_cell(200,20, txt=reason_string, align='L')
+
+                # Сохраняем PDF на сервере
+                pdf_path = 'orders/Dismissal_' + str(
+                    new_dismissal.id_dismissal) + '.pdf'  # путь, куда будет сохранен PDF
+                pdf.output('./media/' + pdf_path)  # сохранение PDF файл
+
+                # Добавляем путь к PDF файлу в базу данных
+                dismissal = Dismissal.objects.get(
+                    id_dismissal=new_dismissal.id_dismissal)  # Получаем объект из базы данных, куда вы хотите добавить путь к файлу
+                dismissal.file = pdf_path
+                dismissal.save()
 
 
             return redirect('/orders/')
