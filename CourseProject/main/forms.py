@@ -2,7 +2,7 @@ from django import forms
 from django.forms import DateInput, NumberInput, DateField
 from .models import *
 from django.forms import ModelForm, TextInput, FileInput
-
+from itertools import chain
 
 class WorkerForm(ModelForm):
     class Meta:
@@ -127,14 +127,27 @@ class ResumeForm(ModelForm):
 class OrderForm(forms.Form):
     orderNumber = forms.IntegerField(label='Номер приказа', widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Введите номер приказа'}))
     orderType = forms.ChoiceField(label='Выбор типа приказа', choices=[('', 'Выберите тип приказа'), (1, 'Отпуск'), (2, 'Прием на работу'), (3, 'Увольнение')], widget=forms.Select(attrs={'class': 'form-control'}))
-    vacationType = forms.ChoiceField(required=False, label='Выбор вида отпуска', choices=[(1, 'Ежегодный обычный'), (2, 'Ежегодный дополнительный'), (3, 'Без сохранения ЗП'), (4, 'Учебный')], widget=forms.Select(attrs={'class': 'form-control'}))
+    vacationType = forms.ModelChoiceField(required=False, queryset=VacationType.objects.all(), label='Тип отпуска',
+                                      widget=forms.Select(attrs={'class': 'form-control'}))
     employee = forms.ModelChoiceField( required=False, queryset=Worker.objects.all(), label='Сотрудник',
                                       widget=forms.Select(attrs={'class': 'form-control'}))
     startDate = forms.DateField(required=False, label='Дата начала отпуска', widget=forms.DateInput(attrs={'class': 'form-control'}))
     endDate = forms.DateField(required=False, label='Дата окончания отпуска', widget=forms.DateInput(attrs={'class': 'form-control'}))
-    contractNumber = forms.CharField(required=False, label='Номер трудового договора', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите номер трудового договора'}))
-    candidate = forms.CharField(required=False, label='Кандидат', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите имя кандидата'}))
-    dismissalContractNumber = forms.CharField(required=False, label='Номер трудового договора', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите номер трудового договора'}))
-    dismissalEmployee = forms.CharField(required=False,label='Сотрудник', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите имя сотрудника'}))
+    candidate = forms.ModelChoiceField(required=False, queryset=JobResume.objects.all(), label='Кандидат',
+                                      widget=forms.Select(attrs={'class': 'form-control'}))
+    dismissalEmployee = forms.ModelChoiceField(required=False, queryset=Worker.objects.all(), label='Сотрудник',
+                                      widget=forms.Select(attrs={'class': 'form-control'}))
     reason = forms.CharField(required=False, label='Причина увольнения', widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Введите причину увольнения'}))
+
+
+class ContractForm(forms.Form):
+    worker = forms.ModelChoiceField(queryset=Worker.objects.all(), label='Сотрудник',
+                                      widget=forms.Select(attrs={'class': 'form-control'}))
+    receipt_date = forms.DateField(label='Дата заключения',
+                                widget=forms.DateInput(attrs={'class': 'form-control'}))
+    salary = forms.IntegerField(label='Оклад', widget=forms.NumberInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите оклад'}))
+    pow = forms.CharField(label='Место работы', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите место работы'}))
+    subdivision = forms.CharField(label='Подразделение', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите подразделение'}))
+    job_title = forms.CharField(label='Должность', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите должность'}))
 

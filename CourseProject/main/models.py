@@ -129,13 +129,16 @@ class JobResume(models.Model):
     phone_number = models.CharField(db_column='Phone_Number', max_length=20)  # Field name made lowercase.
     adress = models.CharField(db_column='Adress', max_length=200)  # Field name made lowercase.
     birthday = models.DateField(db_column='Birthday')  # Field name made lowercase.
-    photo = models.ImageField(db_column='Photo', null=True,blank=True, upload_to='uploads/')  # Field name made lowercase.
+    photo = models.ImageField(db_column='Photo', null=True, blank=True, upload_to='uploads/')  # Field name made lowercase.
     position = models.CharField(db_column='Position', max_length=100)  # Field name made lowercase.
     work_experience = models.IntegerField(db_column='Work_Experience', blank=True, null=True)  # Field name made lowercase.
 
     def __int__(self):
         return self.id_job_resume
 
+
+    def __str__(self):
+        return f'{self.surname} {self.name} {self.patronymic}'
     class Meta:
        
         db_table = 'Job_Resume'
@@ -261,6 +264,8 @@ class VacationType(models.Model):
     def __int__(self):
         return self.id_vacation_type
 
+    def __str__(self):
+        return f'{self.name}'
 
     class Meta:
        
