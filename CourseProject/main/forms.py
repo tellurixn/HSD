@@ -159,3 +159,9 @@ class ContractForm(forms.Form):
     subdivision = forms.CharField(label='Подразделение', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите подразделение'}))
     job_title = forms.CharField(label='Должность', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите должность'}))
 
+class SickLeaveForm(forms.Form):
+    startDate = forms.DateField(required=False, label='Дата начала больничного',
+                                widget=forms.DateInput(attrs={'class': 'form-control'}))
+    endDate = forms.DateField(required=False, label='Дата окончания больничного',
+                              widget=forms.DateInput(attrs={'class': 'form-control'}))
+

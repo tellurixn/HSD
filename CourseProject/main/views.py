@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .forms import WorkerForm, OrderForm, ContractForm
+from .forms import WorkerForm, OrderForm, ContractForm, SickLeaveForm
 from .models import *
 from datetime import date, timedelta
 from django.utils import timezone
@@ -356,19 +356,23 @@ def concrete_worker(request, id):
     subdivision = StructuralSubdivision.objects.get(id_subdivision=contract.id_subdivision).name
 
     try:
-        worker_vacations = Vacation.objects.get(id_worker=worker)
+        worker_vacations = Vacation.objects.all().filter(id_worker=worker)
     except Vacation.DoesNotExist:
         worker_vacations = None
 
     try:
-        worker_recruitments = Recruitment.objects.get(id_worker=worker)
+        worker_recruitments = Recruitment.objects.all().filter(id_worker=worker)
     except Recruitment.DoesNotExist:
         worker_recruitments = None
 
     try:
-        worker_dismissals = Dismissal.objects.get(id_worker=worker)
+        worker_dismissals = Dismissal.objects.all().filter(id_worker=worker)
     except Dismissal.DoesNotExist:
         worker_dismissals = None
+
+    print(worker_dismissals)
+    print(worker_recruitments)
+    print(worker_vacations)
 
     data = {
         'worker': worker,
@@ -425,52 +429,66 @@ def edit_worker(request,id):
 
 @login_required
 def profile(request, id):
-    user = request.user
 
-    user_data = Worker.objects.get(id_worker=user.id_worker)
+    if request.method == 'POST':
+        form = SickLeaveForm(request.POST)
+        if form.is_valid():
+            new_sick = SickLeave(receipt_date=form.cleaned_data.get('startDate'),
+                             expiration_date=form.cleaned_data.get('endDate'),
+                             id_worker=AppUser.objects.get(id_user=id).id_worker)
+            new_sick.save()
 
-    try:
-        worker_vacations = Vacation.objects.get(id_worker = user_data)
-    except Vacation.DoesNotExist:
-        worker_vacations = None
+        return redirect('/')
 
-    try:
-        worker_recruitments = Recruitment.objects.get(id_worker = user_data)
-    except Recruitment.DoesNotExist:
-        worker_recruitments = None
+    elif request.method == 'GET':
+        form = SickLeaveForm()
+        user = request.user
+        user_data = Worker.objects.get(id_worker=user.id_worker)
 
-    try:
-        worker_dismissals = Dismissal.objects.get(id_worker = user_data)
-    except Dismissal.DoesNotExist:
-        worker_dismissals = None
+        try:
+            worker_vacations = Vacation.objects.all().filter(id_worker = user_data)
+        except Vacation.DoesNotExist:
+            worker_vacations = None
 
-    try:
-        contract = EmploymentContract.objects.get(id_worker=user.id_worker)
-    except EmploymentContract.DoesNotExist:
-        contract = None
+        try:
+            worker_recruitments = Recruitment.objects.all().filter(id_worker = user_data)
+        except Recruitment.DoesNotExist:
+            worker_recruitments = None
 
-    if contract is not None:
-        job = JobTitle.objects.get(id_job_title=contract.id_job_title)
-        subdivision = StructuralSubdivision.objects.get(id_subdivision=contract.id_subdivision)
+        try:
+            worker_dismissals = Dismissal.objects.all().filter(id_worker = user_data)
+        except Dismissal.DoesNotExist:
+            worker_dismissals = None
 
-        data = {
-            'user_data': user_data,
-            'job': job.name,
-            'subdivision': subdivision.name,
-            'vacations': worker_vacations,
-            'recruitments': worker_recruitments,
-            'dismissals': worker_dismissals,
-        }
-    else:
-        data = {
-            'user_data': user_data,
-            'vacations': worker_vacations,
-            'recruitments': worker_recruitments,
-            'dismissals': worker_dismissals,
-        }
+        try:
+            contract = EmploymentContract.objects.get(id_worker=user.id_worker)
+        except EmploymentContract.DoesNotExist:
+            contract = None
+
+        if contract is not None:
+            job = JobTitle.objects.get(id_job_title=contract.id_job_title)
+            subdivision = StructuralSubdivision.objects.get(id_subdivision=contract.id_subdivision)
+
+            data = {
+                'user_data': user_data,
+                'job': job.name,
+                'subdivision': subdivision.name,
+                'vacations': worker_vacations,
+                'recruitments': worker_recruitments,
+                'dismissals': worker_dismissals,
+                'form': form,
+            }
+        else:
+            data = {
+                'user_data': user_data,
+                'vacations': worker_vacations,
+                'recruitments': worker_recruitments,
+                'dismissals': worker_dismissals,
+                'form': form,
+            }
 
 
-    return render(request,'main/worker_page.html', data)
+        return render(request,'main/worker_page.html', data)
 
 
 @login_required
